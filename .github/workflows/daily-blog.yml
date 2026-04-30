@@ -30,7 +30,7 @@ jobs:
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
           GOOGLE_REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
           BLOGGER_BLOG_ID: ${{ secrets.BLOGGER_BLOG_ID }}
-          BLOGGER_PUBLISHED: "false"
+          BLOGGER_PUBLISHED: "true"
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
 

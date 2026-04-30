@@ -2,7 +2,7 @@ import logging
 import os
 from typing import List
 
-from .sources import google_trends, newsapi_source, hackernews
+from .sources import google_trends, newsapi_source, hackernews, googlenews, reddit
 from .deduplicator import deduplicate
 from .ranker import rank
 from blog_generator.models import Topic
@@ -20,6 +20,8 @@ class TrendScanner:
         raw.extend(google_trends.fetch(self.country))
         raw.extend(newsapi_source.fetch(os.getenv("NEWSAPI_KEY")))
         raw.extend(hackernews.fetch(limit=15))
+        raw.extend(googlenews.fetch())
+        raw.extend(reddit.fetch())
 
         logger.info(f"Scanner: collected {len(raw)} raw items from all sources")
 
