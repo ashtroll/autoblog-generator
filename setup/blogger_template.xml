@@ -38,8 +38,7 @@
   <link href='https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=Merriweather:ital,wght@0,400;0,700;1,400&amp;display=swap' rel='stylesheet'/>
   <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css' rel='stylesheet'/>
 
-  <style type='text/css'>
-//<![CDATA[
+  <b:skin><![CDATA[
 :root {
   --primary: #2563eb;
   --primary-dark: #1e40af;
@@ -710,8 +709,7 @@ a { color: inherit; text-decoration: none; }
 
 /* Hide default Blogger cruft */
 .HTML1, .PageList1, #Attribution1 { display: none !important; }
-//]]>
-  </style>
+]]></b:skin>
 </head>
 
 <body>
