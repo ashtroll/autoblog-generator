@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 from trend_scanner.scanner import TrendScanner
 from blog_generator.generator import BlogGenerator
-from publisher.wordpress import WordPressPublisher
+from publisher.devto import DevToPublisher
 from notifications.telegram import send_report
 
 REPORTS_DIR = Path("reports")
@@ -46,7 +46,7 @@ def run_daily_pipeline(topic_count: int = 5) -> dict:
         return report
 
     generator = BlogGenerator()
-    publisher = WordPressPublisher.from_config()
+    publisher = DevToPublisher.from_config()
 
     for topic in topics:
         try:
