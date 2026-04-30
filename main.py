@@ -3,13 +3,18 @@ import logging
 import sys
 from datetime import datetime
 from pathlib import Path
+from dotenv import load_dotenv
+load_dotenv()
 
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s %(levelname)-8s %(name)s — %(message)s",
+    format="%(asctime)s %(levelname)-8s %(name)s - %(message)s",
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler(Path("logs") / f"{datetime.now().strftime('%Y-%m-%d')}.log"),
+        logging.FileHandler(
+            Path("logs") / f"{datetime.now().strftime('%Y-%m-%d')}.log",
+            encoding="utf-8",
+        ),
     ],
 )
 logger = logging.getLogger(__name__)

@@ -116,12 +116,17 @@ class BlogGenerator:
         in_titles = False
         for line in lines:
             stripped = line.strip()
-            if "5." in stripped and ("title" in stripped.lower() or "potential" in stripped.lower()):
+            # Detect the titles section header
+            if re.search(r"(potential|blog post|seo).*(title|headline)", stripped, re.I):
                 in_titles = True
                 continue
             if in_titles:
-                # First non-empty line after the section header that looks like a title
-                candidate = re.sub(r"^[\d\.\-\*]\s*", "", stripped)
-                if len(candidate) > 10:
+                # Skip blank lines and section headers (lines ending with ":")
+                if not stripped or stripped.endswith(":"):
+                    continue
+                # Strip leading numbering/bullets/bold markers
+                candidate = re.sub(r"^[\d\.\-\*\#]+\s*|\*{1,2}", "", stripped).strip()
+                # A real title: 15+ chars, not a meta-instruction sentence
+                if len(candidate) >= 15 and not candidate.lower().startswith("here are"):
                     return candidate
         return fallback

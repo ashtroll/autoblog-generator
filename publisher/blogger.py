@@ -72,5 +72,5 @@ class BloggerPublisher(BasePublisher):
         )
         response.raise_for_status()
         data = response.json()
-        logger.info(f"Blogger: posted '{blog.title}' → {data.get('url')}")
+        logger.info(f"Blogger: posted '{blog.title}' -> {data.get('url')}")
         return data

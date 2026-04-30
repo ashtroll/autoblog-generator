@@ -37,5 +37,5 @@ def deduplicate(topics: List[Dict]) -> List[Dict]:
             merged["_source_count"] = 1
             seen.append(merged)
 
-    logger.info(f"Deduplication: {len(topics)} → {len(seen)} unique topics")
+    logger.info(f"Deduplication: {len(topics)} -> {len(seen)} unique topics")
     return seen
