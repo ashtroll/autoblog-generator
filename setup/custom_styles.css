@@ -1,0 +1,299 @@
+/* ================================================
+   TinkerStack — Custom Blogger Theme
+   Paste this in: Blogger > Theme > Customize >
+   Scroll to bottom > "Add CSS" > paste & Apply
+   ================================================ */
+
+/* --- Google Fonts --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700&display=swap');
+
+/* --- Base Reset --- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --primary: #1d4ed8;
+  --primary-dark: #1e3a8a;
+  --accent: #f59e0b;
+  --text: #1e293b;
+  --text-light: #64748b;
+  --bg: #f8fafc;
+  --card-bg: #ffffff;
+  --border: #e2e8f0;
+  --radius: 12px;
+  --shadow: 0 4px 24px rgba(0,0,0,.07);
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+}
+
+/* --- Header --- */
+#header-wrapper, .header-outer, header {
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%) !important;
+  border-bottom: 3px solid var(--accent) !important;
+  padding: 0 !important;
+  box-shadow: 0 2px 20px rgba(0,0,0,.2) !important;
+}
+
+#header .titlewrapper, .header .titlewrapper, header .titlewrapper {
+  padding: 28px 40px !important;
+}
+
+#header h1, .header h1, header h1 {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 2rem !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  letter-spacing: -0.5px !important;
+}
+
+#header .description, .header .description {
+  color: rgba(255,255,255,0.75) !important;
+  font-size: 0.95rem !important;
+  margin-top: 4px !important;
+}
+
+/* --- Navigation --- */
+.tabs-outer, #navbar, .navbar {
+  background: #ffffff !important;
+  border-bottom: 1px solid var(--border) !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,.05) !important;
+}
+
+/* --- Main Content Area --- */
+#main-wrapper, .main-outer, .main {
+  max-width: 1200px !important;
+  margin: 40px auto !important;
+  padding: 0 20px !important;
+}
+
+/* --- Post Cards (Homepage) --- */
+.blog-posts .post-outer, .blog-posts .post {
+  background: var(--card-bg) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: var(--shadow) !important;
+  border: 1px solid var(--border) !important;
+  margin-bottom: 28px !important;
+  padding: 32px !important;
+  transition: transform .2s, box-shadow .2s !important;
+  overflow: hidden !important;
+}
+
+.blog-posts .post-outer:hover, .blog-posts .post:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,.12) !important;
+}
+
+/* --- Post Title --- */
+.post h3.post-title, .post-title, h3.post-title {
+  font-family: 'Merriweather', serif !important;
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  line-height: 1.35 !important;
+  margin-bottom: 12px !important;
+}
+
+.post h3.post-title a, .post-title a {
+  color: var(--text) !important;
+  text-decoration: none !important;
+  transition: color .2s !important;
+}
+
+.post h3.post-title a:hover, .post-title a:hover {
+  color: var(--primary) !important;
+}
+
+/* --- Post Meta --- */
+.post-header, .post-meta, .date-header {
+  color: var(--text-light) !important;
+  font-size: 0.85rem !important;
+  margin-bottom: 16px !important;
+  display: flex !important;
+  gap: 16px !important;
+  align-items: center !important;
+}
+
+/* --- Post Body (Article page) --- */
+.post-body {
+  font-family: 'Merriweather', serif !important;
+  font-size: 1.05rem !important;
+  line-height: 1.85 !important;
+  color: #334155 !important;
+}
+
+.post-body h2 {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 1.4rem !important;
+  font-weight: 700 !important;
+  color: var(--text) !important;
+  margin: 2rem 0 1rem !important;
+  padding-bottom: 8px !important;
+  border-bottom: 2px solid var(--border) !important;
+}
+
+.post-body h3 {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 1.15rem !important;
+  font-weight: 600 !important;
+  margin: 1.5rem 0 0.75rem !important;
+}
+
+.post-body p { margin-bottom: 1.25rem !important; }
+
+.post-body strong, .post-body b {
+  color: var(--text) !important;
+  font-weight: 600 !important;
+}
+
+.post-body a {
+  color: var(--primary) !important;
+  text-decoration: underline !important;
+  text-decoration-color: rgba(29,78,216,.3) !important;
+}
+
+.post-body a:hover { text-decoration-color: var(--primary) !important; }
+
+.post-body ul, .post-body ol {
+  padding-left: 1.5rem !important;
+  margin-bottom: 1.25rem !important;
+}
+
+.post-body li { margin-bottom: 0.5rem !important; }
+
+/* --- Labels / Tags --- */
+.post-labels a, .post-footer .labels a {
+  display: inline-block !important;
+  background: #eff6ff !important;
+  color: var(--primary) !important;
+  border: 1px solid #bfdbfe !important;
+  padding: 3px 10px !important;
+  border-radius: 20px !important;
+  font-size: 0.8rem !important;
+  font-weight: 500 !important;
+  text-decoration: none !important;
+  margin: 2px !important;
+  transition: background .2s !important;
+}
+
+.post-labels a:hover { background: #dbeafe !important; }
+
+/* --- Read More Button --- */
+.read-more-link a, a.read-more {
+  display: inline-block !important;
+  background: var(--primary) !important;
+  color: #fff !important;
+  padding: 10px 24px !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  font-size: 0.9rem !important;
+  text-decoration: none !important;
+  margin-top: 16px !important;
+  transition: background .2s, transform .1s !important;
+}
+
+.read-more-link a:hover, a.read-more:hover {
+  background: var(--primary-dark) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* --- Sidebar --- */
+#sidebar-wrapper, .sidebar-outer {
+  background: transparent !important;
+}
+
+.sidebar .widget {
+  background: var(--card-bg) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: var(--shadow) !important;
+  border: 1px solid var(--border) !important;
+  padding: 24px !important;
+  margin-bottom: 24px !important;
+}
+
+.sidebar .widget h2, .sidebar .widget .title {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.85rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  color: var(--text-light) !important;
+  margin-bottom: 16px !important;
+  padding-bottom: 10px !important;
+  border-bottom: 2px solid var(--border) !important;
+}
+
+/* --- Trust Badge in Sidebar --- */
+.sidebar .widget:first-child::before {
+  content: "✓ 100% Original Content  ✓ Daily Updates  ✓ Expert Analysis";
+  display: block !important;
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7) !important;
+  border: 1px solid #86efac !important;
+  border-radius: 8px !important;
+  padding: 12px !important;
+  font-size: 0.78rem !important;
+  color: #166534 !important;
+  font-weight: 600 !important;
+  margin-bottom: 16px !important;
+  line-height: 1.8 !important;
+}
+
+/* --- Footer --- */
+#footer-wrapper, footer, .footer-outer {
+  background: var(--primary-dark) !important;
+  color: rgba(255,255,255,0.7) !important;
+  text-align: center !important;
+  padding: 32px 20px !important;
+  margin-top: 60px !important;
+  font-size: 0.875rem !important;
+}
+
+#footer-wrapper a, footer a {
+  color: rgba(255,255,255,0.85) !important;
+  text-decoration: none !important;
+}
+
+/* --- Pagination --- */
+.blog-pager, #blog-pager {
+  display: flex !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  margin: 40px 0 !important;
+}
+
+.blog-pager a, #blog-pager a {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 8px !important;
+  padding: 10px 20px !important;
+  color: var(--primary) !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  transition: all .2s !important;
+}
+
+.blog-pager a:hover, #blog-pager a:hover {
+  background: var(--primary) !important;
+  color: #fff !important;
+  border-color: var(--primary) !important;
+}
+
+/* --- Single Post Page --- */
+.item-page .post-outer, .item-page .post {
+  background: var(--card-bg) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: var(--shadow) !important;
+  border: 1px solid var(--border) !important;
+  padding: 48px !important;
+}
+
+/* --- Mobile Responsive --- */
+@media (max-width: 768px) {
+  #header .titlewrapper { padding: 20px !important; }
+  #header h1 { font-size: 1.5rem !important; }
+  #main-wrapper { margin: 20px auto !important; }
+  .blog-posts .post-outer, .item-page .post-outer { padding: 20px !important; }
+  .post h3.post-title { font-size: 1.25rem !important; }
+}
