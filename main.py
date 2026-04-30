@@ -7,6 +7,9 @@ from pathlib import Path
 from dotenv import load_dotenv
 load_dotenv()
 
+Path("logs").mkdir(exist_ok=True)
+Path("reports").mkdir(exist_ok=True)
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)-8s %(name)s - %(message)s",
@@ -26,8 +29,6 @@ from publisher.blogger import BloggerPublisher
 from notifications.telegram import send_report
 
 REPORTS_DIR = Path("reports")
-REPORTS_DIR.mkdir(exist_ok=True)
-Path("logs").mkdir(exist_ok=True)
 
 
 def run_daily_pipeline(topic_count: int = 25) -> dict:
