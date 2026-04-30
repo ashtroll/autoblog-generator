@@ -1,5 +1,6 @@
 import logging
 import re
+from datetime import datetime
 from typing import Optional
 
 from .llm_client import LLMClient
@@ -18,11 +19,12 @@ class BlogGenerator:
 
     def generate(self, topic: Topic) -> BlogPost:
         logger.info(f"Generating blog for: {topic.title}")
+        today = datetime.utcnow().strftime("%B %d, %Y")
 
         # Stage 1 — Research expansion
         research_text = self._llm.complete(
             system=research.SYSTEM,
-            user_message=research.build(topic.title, topic.description, topic.source_urls),
+            user_message=research.build(topic.title, topic.description, topic.source_urls, today=today),
         )
 
         # Pick the first suggested title from the research output
@@ -31,7 +33,7 @@ class BlogGenerator:
         # Stage 2 — Blog writing
         blog_md = self._llm.complete(
             system=writing.SYSTEM,
-            user_message=writing.build(chosen_title, research_text),
+            user_message=writing.build(chosen_title, research_text, today=today),
             max_tokens=6000,
         )
 

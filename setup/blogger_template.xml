@@ -746,12 +746,12 @@ a { color: inherit; text-decoration: none; }
 <b:if cond='data:blog.pageType == &quot;index&quot;'>
 <div class='ts-hero'>
   <div class='ts-hero-inner'>
-    <h2>Stay Ahead of <em>Every Trend</em></h2>
-    <p>Fresh insights on tech, science, business and the world &#8212; published daily, written for curious minds.</p>
+    <h2>Today&#8217;s <em>Top 5 Trending</em> Topics</h2>
+    <p>Every morning we scan thousands of sources, find the 5 hottest stories, and publish a deep-dive on each one &#8212; so you never miss what the world is talking about.</p>
     <div class='ts-hero-stats'>
-      <div class='ts-stat-hero'><strong>5+</strong><span>Articles Daily</span></div>
-      <div class='ts-stat-hero'><strong>9/10</strong><span>Avg Quality</span></div>
-      <div class='ts-stat-hero'><strong>100%</strong><span>Free to Read</span></div>
+      <div class='ts-stat-hero'><strong>5</strong><span>Fresh Articles Today</span></div>
+      <div class='ts-stat-hero'><strong>Top</strong><span>Trending Only</span></div>
+      <div class='ts-stat-hero'><strong>6 AM</strong><span>Published Daily IST</span></div>
     </div>
   </div>
 </div>
@@ -776,7 +776,7 @@ a { color: inherit; text-decoration: none; }
 
       <b:if cond='data:blog.pageType == &quot;index&quot;'>
         <div class='ts-section-label'>
-          <h3>Latest Articles</h3>
+          <h3>&#128293; Today&#8217;s Trending Stories</h3>
           <div class='ts-section-label-line'></div>
         </div>
       </b:if>
