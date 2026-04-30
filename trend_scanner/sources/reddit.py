@@ -5,11 +5,14 @@ from typing import List, Dict
 
 logger = logging.getLogger(__name__)
 
-_SUBREDDITS = ["technology", "worldnews", "science", "business"]
+_SUBREDDITS = [
+    "technology", "worldnews", "science", "business",
+    "news", "india", "finance", "space", "health", "environment",
+]
 _HEADERS = {"User-Agent": "AutoBlogBot/1.0"}
 
 
-def fetch(limit: int = 10) -> List[Dict]:
+def fetch(limit: int = 15) -> List[Dict]:
     topics = []
     for sub in _SUBREDDITS:
         try:

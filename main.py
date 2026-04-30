@@ -1,6 +1,7 @@
 import json
 import logging
 import sys
+import time
 from datetime import datetime
 from pathlib import Path
 from dotenv import load_dotenv
@@ -29,7 +30,7 @@ REPORTS_DIR.mkdir(exist_ok=True)
 Path("logs").mkdir(exist_ok=True)
 
 
-def run_daily_pipeline(topic_count: int = 5) -> dict:
+def run_daily_pipeline(topic_count: int = 25) -> dict:
     report = {
         "date": datetime.now().isoformat(),
         "topics_found": [],
@@ -53,9 +54,11 @@ def run_daily_pipeline(topic_count: int = 5) -> dict:
     generator = BlogGenerator()
     publisher = BloggerPublisher.from_config()
 
-    for topic in topics:
+    for i, topic in enumerate(topics):
+        if i > 0:
+            time.sleep(3)  # avoid Groq rate limit (30 req/min)
         try:
-            logger.info(f"Processing topic: {topic.title}")
+            logger.info(f"Processing topic {i+1}/{len(topics)}: {topic.title}")
             blog = generator.generate(topic)
 
             result = publisher.publish(blog)

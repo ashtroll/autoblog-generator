@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 _BASE = "https://hacker-news.firebaseio.com/v0"
 
 
-def fetch(limit: int = 15) -> List[Dict]:
+def fetch(limit: int = 30) -> List[Dict]:
     try:
         ids = requests.get(f"{_BASE}/topstories.json", timeout=10).json()
         topics = []
