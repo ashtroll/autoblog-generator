@@ -14,6 +14,7 @@ Review the blog post below and return a JSON object with exactly these fields:
   "tags": ["tag1", "tag2", "tag3"],
   "slug": "url-friendly-slug-from-title",
   "estimated_read_time": "X min read",
+  "image_search_term": "<one or two keywords to fetch a relevant image from Unsplash>",
   "issues": ["<specific issue if any>"],
   "rewrite_instructions": "<only present if pass is false — specific fixes>"
 }}

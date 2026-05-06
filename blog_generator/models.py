@@ -18,6 +18,7 @@ class QualityReport(BaseModel):
     tags: List[str] = Field(default_factory=list)
     slug: str
     estimated_read_time: str
+    image_search_term: str = ""
     issues: List[str] = Field(default_factory=list)
     rewrite_instructions: Optional[str] = None
 
@@ -30,4 +31,6 @@ class BlogPost(BaseModel):
     content_md: str
     content_html: str = ""
     meta: QualityReport
+    featured_image_url: Optional[str] = None
+    featured_image_credit: Optional[str] = None
     needs_review: bool = False

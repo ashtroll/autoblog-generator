@@ -76,7 +76,7 @@ class BloggerPublisher(BasePublisher):
         return data
 
     def _build_content(self, blog: BlogPost) -> str:
-        body_html = to_html(blog.content_md)
+        body_html = to_html(blog.content_md, featured_image_url=blog.featured_image_url, featured_image_credit=blog.featured_image_credit)
         tags_html = " ".join(
             f'<a href="/search/label/{t}" rel="tag">{t}</a>'
             for t in blog.meta.tags
