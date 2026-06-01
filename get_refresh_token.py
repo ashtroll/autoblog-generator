@@ -6,5 +6,5 @@ flow = InstalledAppFlow.from_client_secrets_file(
 )
 
 creds = flow.run_local_server(port=8080, open_browser=True)
-print("\n✅ SUCCESS!")
+print("\nSUCCESS!")
 print("REFRESH TOKEN:", creds.refresh_token)

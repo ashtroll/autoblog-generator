@@ -35,7 +35,7 @@ class BlogGenerator:
         blog_md = self._llm.complete(
             system=writing.SYSTEM,
             user_message=writing.build(chosen_title, research_text, today=today),
-            max_tokens=6000,
+            max_tokens=9000,
         )
 
         # Stage 3 — Quality + retry loop
@@ -71,10 +71,10 @@ class BlogGenerator:
             if best_post is None or report.quality_score > best_post.meta.quality_score:
                 best_post = post
 
-            if report.pass_ and report.quality_score >= 7:
+            if report.pass_ and report.quality_score >= 7 and report.engagement_score >= 6:
                 logger.info(
-                    f"Blog passed quality check (score={report.quality_score}, "
-                    f"seo={report.seo_score}) on attempt {attempt}"
+                    f"Blog passed quality check (q={report.quality_score}, "
+                    f"seo={report.seo_score}, eng={report.engagement_score}) on attempt {attempt}"
                 )
                 return post
 
@@ -91,7 +91,7 @@ class BlogGenerator:
                 blog_md = self._llm.complete(
                     system=writing.SYSTEM,
                     user_message=rewrite_prompt,
-                    max_tokens=6000,
+                    max_tokens=9000,
                 )
 
         if best_post is None:
@@ -106,12 +106,14 @@ class BlogGenerator:
                 meta=QualityReport.model_validate({
                     "quality_score": 5,
                     "seo_score": 5,
+                    "engagement_score": 5,
                     "pass": False,
                     "meta_description": topic.description[:155],
                     "tags": [],
                     "slug": re.sub(r"[^\w-]", "-", topic.title.lower())[:60],
                     "estimated_read_time": "5 min read",
                     "image_search_term": chosen_title,
+                    "structure_checks": {},
                     "issues": ["Quality check failed — manual review required"],
                 }),
                 featured_image_url=image_data["url"] if image_data else None,

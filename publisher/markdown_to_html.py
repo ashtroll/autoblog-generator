@@ -1,3 +1,4 @@
+import re
 import mistune
 from typing import Optional
 
@@ -6,15 +7,174 @@ _md = mistune.create_markdown(
     plugins=["strikethrough", "table"],
 )
 
+_PULL_QUOTE_EMOJI = "💡📊📈⚡🔥💥🎯🚨📉⭐"
 
-def to_html(markdown_text: str, featured_image_url: Optional[str] = None, featured_image_credit: Optional[str] = None) -> str:
+
+def _slugify(text: str) -> str:
+    text = re.sub(r"<[^>]+>", "", text)
+    text = text.lower().strip()
+    text = re.sub(r"[^\w\s-]", "", text)
+    text = re.sub(r"[\s_]+", "-", text)
+    return text.strip("-")
+
+
+def _add_heading_anchors(html: str) -> str:
+    def repl(match):
+        tag = match.group(1)
+        inner = match.group(2)
+        slug = _slugify(inner)
+        return f'<{tag} id="{slug}">{inner}</{tag}>'
+    return re.sub(r"<(h[2-3])>(.*?)</\1>", repl, html, flags=re.DOTALL)
+
+
+def _style_tldr_box(html: str) -> str:
+    pattern = re.compile(
+        r'<blockquote>\s*<p>\s*<strong>TL;?DR</strong>\s*</p>\s*(.*?)</blockquote>',
+        re.DOTALL | re.IGNORECASE,
+    )
+
+    def repl(match):
+        inner = match.group(1)
+        items = re.findall(r"<li>(.*?)</li>", inner, re.DOTALL)
+        if not items:
+            paragraphs = re.findall(r"<p>(.*?)</p>", inner, re.DOTALL)
+            items = [p.strip() for p in paragraphs if p.strip()]
+        if not items:
+            return match.group(0)
+        lis = "".join(f'<li>{item.strip()}</li>' for item in items)
+        return (
+            '<div class="ts-tldr">'
+            '<div class="ts-tldr-label">Key Takeaways</div>'
+            f'<ul>{lis}</ul>'
+            '</div>'
+        )
+
+    return pattern.sub(repl, html)
+
+
+def _style_toc(html: str) -> str:
+    pattern = re.compile(
+        r'(?:<p>)?\s*(?:<!--|&lt;!--)\s*TOC\s*(?:-->|--&gt;)\s*(?:</p>)?'
+        r'(.*?)'
+        r'(?:<p>)?\s*(?:<!--|&lt;!--)\s*/TOC\s*(?:-->|--&gt;)\s*(?:</p>)?',
+        re.DOTALL | re.IGNORECASE,
+    )
+
+    def repl(match):
+        inner = match.group(1).strip()
+        ul_match = re.search(r'<ul>.*?</ul>', inner, re.DOTALL)
+        list_html = ul_match.group(0) if ul_match else inner
+        return (
+            '<nav class="ts-toc" aria-label="Table of Contents">'
+            '<div class="ts-toc-title">In this article</div>'
+            f'{list_html}'
+            '</nav>'
+        )
+
+    return pattern.sub(repl, html)
+
+
+def _style_pull_quotes(html: str) -> str:
+    emoji_class = re.escape(_PULL_QUOTE_EMOJI)
+    pattern = re.compile(
+        rf'<blockquote>\s*<p>\s*([{emoji_class}])\s*(.*?)</p>\s*</blockquote>',
+        re.DOTALL,
+    )
+
+    def repl(match):
+        emoji = match.group(1)
+        body = match.group(2).strip()
+        return (
+            '<aside class="ts-pullquote">'
+            f'<span class="ts-pullquote-icon" aria-hidden="true">{emoji}</span>'
+            f'<span class="ts-pullquote-text">{body}</span>'
+            '</aside>'
+        )
+
+    return pattern.sub(repl, html)
+
+
+def _style_faq(html: str) -> str:
+    faq_pattern = re.compile(
+        r'(<h2[^>]*>(?:FAQ|Frequently Asked Questions)</h2>)(.*?)(?=<h2|$)',
+        re.DOTALL | re.IGNORECASE,
+    )
+
+    def faq_repl(match):
+        heading = match.group(1)
+        body = match.group(2)
+
+        item_pattern = re.compile(
+            r'<h3[^>]*>(.*?)</h3>(.*?)(?=<h3|$)',
+            re.DOTALL,
+        )
+
+        items_html = []
+        for q_match in item_pattern.finditer(body):
+            question = q_match.group(1).strip()
+            answer = q_match.group(2).strip()
+            items_html.append(
+                '<details class="ts-faq-item">'
+                f'<summary>{question}</summary>'
+                f'<div class="ts-faq-answer">{answer}</div>'
+                '</details>'
+            )
+
+        if not items_html:
+            return match.group(0)
+
+        return (
+            f'{heading}'
+            '<section class="ts-faq">'
+            + "".join(items_html) +
+            '</section>'
+        )
+
+    return faq_pattern.sub(faq_repl, html)
+
+
+def _style_bottom_line(html: str) -> str:
+    pattern = re.compile(
+        r'(<h2[^>]*>The Bottom Line</h2>)(.*?)(?=<h2|$)',
+        re.DOTALL | re.IGNORECASE,
+    )
+
+    def repl(match):
+        heading = match.group(1)
+        body = match.group(2).strip()
+        return (
+            '<section class="ts-bottom-line">'
+            f'{heading}'
+            f'{body}'
+            '</section>'
+        )
+
+    return pattern.sub(repl, html)
+
+
+def to_html(
+    markdown_text: str,
+    featured_image_url: Optional[str] = None,
+    featured_image_credit: Optional[str] = None,
+) -> str:
     html = _md(markdown_text)
+    html = _add_heading_anchors(html)
+    html = _style_tldr_box(html)
+    html = _style_toc(html)
+    html = _style_pull_quotes(html)
+    html = _style_faq(html)
+    html = _style_bottom_line(html)
 
     if featured_image_url:
-        img_html = f'<figure style="margin: 20px 0; text-align: center;"><img src="{featured_image_url}" alt="Featured image" style="max-width: 100%; height: auto; border-radius: 8px;"/>'
+        credit_html = ""
         if featured_image_credit:
-            img_html += f'<figcaption style="font-size: 0.9em; color: #666; margin-top: 8px;">Photo by {featured_image_credit}</figcaption>'
-        img_html += '</figure>'
+            credit_html = f'<figcaption class="ts-hero-credit">Photo by {featured_image_credit} / Unsplash</figcaption>'
+        img_html = (
+            '<figure class="ts-hero-figure">'
+            f'<img src="{featured_image_url}" alt="Featured image" loading="lazy"/>'
+            f'{credit_html}'
+            '</figure>'
+        )
         html = img_html + html
 
     return html

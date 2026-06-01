@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
 
 
@@ -13,12 +13,14 @@ class Topic(BaseModel):
 class QualityReport(BaseModel):
     quality_score: int
     seo_score: int
+    engagement_score: int = 7
     pass_: bool = Field(alias="pass")
     meta_description: str
     tags: List[str] = Field(default_factory=list)
     slug: str
     estimated_read_time: str
     image_search_term: str = ""
+    structure_checks: Dict[str, Any] = Field(default_factory=dict)
     issues: List[str] = Field(default_factory=list)
     rewrite_instructions: Optional[str] = None
 

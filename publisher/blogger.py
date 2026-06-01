@@ -1,5 +1,6 @@
 import logging
 import os
+import datetime
 import requests
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
@@ -76,44 +77,113 @@ class BloggerPublisher(BasePublisher):
         return data
 
     def _build_content(self, blog: BlogPost) -> str:
-        body_html = to_html(blog.content_md, featured_image_url=blog.featured_image_url, featured_image_credit=blog.featured_image_credit)
-        tags_html = " ".join(
-            f'<a href="/search/label/{t}" rel="tag">{t}</a>'
-            for t in blog.meta.tags
+        body_html = to_html(
+            blog.content_md,
+            featured_image_url=blog.featured_image_url,
+            featured_image_credit=blog.featured_image_credit,
         )
-        schema = f"""
-<script type="application/ld+json">
-{{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "{blog.title.replace('"', '&quot;')}",
-  "description": "{blog.meta.meta_description.replace('"', '&quot;')}",
-  "datePublished": "{__import__('datetime').datetime.utcnow().isoformat()}Z",
-  "author": {{"@type": "Organization", "name": "TinkerStack"}},
-  "publisher": {{
-    "@type": "Organization",
-    "name": "TinkerStack",
-    "url": "https://tinkerstackk.blogspot.com"
-  }},
-  "keywords": "{', '.join(blog.meta.tags)}"
-}}
-</script>"""
 
-        read_time = blog.meta.estimated_read_time
-        return f"""
-{schema}
-<div class="post-meta-bar" style="display:flex;gap:16px;align-items:center;
-  padding:12px 0 20px;border-bottom:1px solid #e2e8f0;margin-bottom:28px;
-  color:#64748b;font-size:0.85rem;font-family:Inter,sans-serif;">
-  <span>&#128337; {read_time}</span>
-  <span>&#127991; {tags_html}</span>
-</div>
-{body_html}
-<div class="post-footer-cta" style="background:linear-gradient(135deg,#eff6ff,#dbeafe);
-  border:1px solid #bfdbfe;border-radius:12px;padding:24px;margin-top:40px;
-  text-align:center;font-family:Inter,sans-serif;">
-  <p style="font-weight:700;font-size:1.05rem;color:#1e3a8a;margin-bottom:8px;">
-    Found this useful? Share it.</p>
-  <p style="color:#3b82f6;font-size:0.9rem;margin:0;">
-    Follow TinkerStack for daily insights on tech, science, and the world.</p>
-</div>"""
+        category = (blog.meta.tags[0] if blog.meta.tags else "Latest").strip()
+        read_time = blog.meta.estimated_read_time or "5 min read"
+        dek = blog.meta.meta_description or ""
+        labels_attr = ",".join(blog.meta.tags[:3])
+
+        schema = self._build_schema(blog)
+        progress_bar = (
+            '<div class="ts-progress" id="ts-progress" aria-hidden="true"></div>'
+            '<script>'
+            '(function(){var b=document.getElementById("ts-progress");if(!b)return;'
+            'window.addEventListener("scroll",function(){'
+            'var h=document.documentElement,s=h.scrollTop||document.body.scrollTop,'
+            'm=(h.scrollHeight||document.body.scrollHeight)-h.clientHeight;'
+            'b.style.width=(m>0?(s/m*100):0)+"%";});})();'
+            '</script>'
+        )
+
+        article_header = (
+            '<header class="ts-article-header">'
+            f'<div class="ts-eyebrow">{category}</div>'
+            f'<h1 class="ts-article-title">{self._esc(blog.title)}</h1>'
+            f'<p class="ts-article-dek">{self._esc(dek)}</p>'
+            '<div class="ts-article-byline">'
+            'By <strong>TinkerStack</strong>'
+            f' &middot; <span>{read_time}</span>'
+            f' &middot; <time>{datetime.datetime.utcnow().strftime("%B %d, %Y")}</time>'
+            '</div>'
+            '</header>'
+        )
+
+        share_bar = (
+            '<div class="ts-share-rail">'
+            '<span class="ts-share-label">Share</span>'
+            '<a class="ts-share-link" href="https://twitter.com/intent/tweet" rel="nofollow noopener" target="_blank">Twitter</a>'
+            '<a class="ts-share-link" href="https://www.facebook.com/sharer/sharer.php" rel="nofollow noopener" target="_blank">Facebook</a>'
+            '<a class="ts-share-link" href="https://api.whatsapp.com/send" rel="nofollow noopener" target="_blank">WhatsApp</a>'
+            '<a class="ts-share-link" href="#" onclick="navigator.clipboard&amp;&amp;navigator.clipboard.writeText(location.href);return false;">Copy link</a>'
+            '</div>'
+        )
+
+        related_mount = (
+            f'<div class="ts-related-mount" data-labels="{self._esc(labels_attr)}"></div>'
+        )
+
+        footer_cta = (
+            '<div class="ts-footer-cta">'
+            '<h4>Get tomorrow\'s briefing in your inbox</h4>'
+            '<p>Hand-picked stories from the world of technology, science, and business — every morning.</p>'
+            '<a class="ts-footer-cta-link" href="/">Read more on TinkerStack &rarr;</a>'
+            '</div>'
+        )
+
+        return (
+            f'{schema}'
+            f'{progress_bar}'
+            '<article class="ts-article">'
+            f'{article_header}'
+            f'{body_html}'
+            f'{share_bar}'
+            f'{related_mount}'
+            f'{footer_cta}'
+            '</article>'
+        )
+
+    def _build_schema(self, blog: BlogPost) -> str:
+        title = self._esc_json(blog.title)
+        desc = self._esc_json(blog.meta.meta_description)
+        keywords = self._esc_json(", ".join(blog.meta.tags))
+        date_iso = datetime.datetime.utcnow().isoformat()
+        image_block = ""
+        if blog.featured_image_url:
+            image_block = f'"image": "{blog.featured_image_url}",\n  '
+        return (
+            '<script type="application/ld+json">\n'
+            '{\n'
+            '  "@context": "https://schema.org",\n'
+            '  "@type": "BlogPosting",\n'
+            f'  "headline": "{title}",\n'
+            f'  "description": "{desc}",\n'
+            f'  {image_block}"datePublished": "{date_iso}Z",\n'
+            '  "author": {"@type": "Organization", "name": "TinkerStack"},\n'
+            '  "publisher": {\n'
+            '    "@type": "Organization",\n'
+            '    "name": "TinkerStack",\n'
+            '    "url": "https://tinkerstackk.blogspot.com"\n'
+            '  },\n'
+            f'  "keywords": "{keywords}"\n'
+            '}\n'
+            '</script>'
+        )
+
+    @staticmethod
+    def _esc(text: str) -> str:
+        return (
+            (text or "")
+            .replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace('"', "&quot;")
+        )
+
+    @staticmethod
+    def _esc_json(text: str) -> str:
+        return (text or "").replace("\\", "\\\\").replace('"', '\\"').replace("\n", " ")
