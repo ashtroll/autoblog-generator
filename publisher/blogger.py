@@ -86,7 +86,7 @@ class BloggerPublisher(BasePublisher):
         category = (blog.meta.tags[0] if blog.meta.tags else "Latest").strip()
         read_time = blog.meta.estimated_read_time or "5 min read"
         dek = blog.meta.meta_description or ""
-        labels_attr = ",".join(blog.meta.tags[:3])
+        labels_attr = ",".join(blog.meta.tags[:8])
 
         schema = self._build_schema(blog)
         progress_bar = (

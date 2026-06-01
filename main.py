@@ -57,7 +57,7 @@ def run_daily_pipeline(topic_count: int = 25) -> dict:
 
     for i, topic in enumerate(topics):
         if i > 0:
-            time.sleep(3)  # avoid Groq rate limit (30 req/min)
+            time.sleep(8)  # avoid Groq rate limit; each article uses 3-5 LLM calls
         try:
             logger.info(f"Processing topic {i+1}/{len(topics)}: {topic.title}")
             blog = generator.generate(topic)

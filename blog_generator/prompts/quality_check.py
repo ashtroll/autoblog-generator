@@ -13,7 +13,7 @@ Review the blog post below and return a JSON object with exactly these fields:
   "engagement_score": <integer 1-10, scannability + retention features + reader hooks>,
   "pass": <true if ALL: quality_score >= 7 AND seo_score >= 6 AND engagement_score >= 6 AND all required structure_checks are present>,
   "meta_description": "<155 chars max, compelling summary>",
-  "tags": ["tag1", "tag2", "tag3"],
+  "tags": ["primary-keyword", "secondary-keyword-1", "secondary-keyword-2", "topic-category", "subtopic", "audience-or-intent", "related-term-1", "related-term-2", "related-term-3", "related-term-4"],
   "slug": "url-friendly-slug-from-title",
   "estimated_read_time": "X min read",
   "image_search_term": "<one or two keywords to fetch a relevant image from Unsplash>",
@@ -28,6 +28,8 @@ Review the blog post below and return a JSON object with exactly these fields:
     "has_pull_quotes": <true if at least one blockquote starts with an emoji + bold label, e.g. `> 💡 **Stat:**`>
   }},
   "issues": ["<specific issue if any>"],
+
+NOTE on tags: provide exactly 8-10 tags. Mix: 1 primary keyword (exact match to article title keyword), 2-3 secondary/LSI keywords, 1-2 topic categories (e.g. "Technology", "Health"), 1 audience/intent tag (e.g. "Beginners Guide", "How To"), and 2-3 specific related terms. Use lowercase hyphenated format. No generic filler tags like "article" or "blog".
   "rewrite_instructions": "<only present if pass is false — specific, actionable fixes>"
 }}
 
