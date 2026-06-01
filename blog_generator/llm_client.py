@@ -3,7 +3,7 @@ import logging
 import os
 import re
 
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type, before_sleep_log
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception, before_sleep_log
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +41,7 @@ class LLMClient:
         logger.info(f"LLMClient using provider: {self._provider}")
 
     @retry(
-        retry=retry_if_exception_type(_is_rate_limit),
+        retry=retry_if_exception(_is_rate_limit),
         wait=wait_exponential(multiplier=1, min=15, max=120),
         stop=stop_after_attempt(6),
         before_sleep=before_sleep_log(logger, logging.WARNING),
