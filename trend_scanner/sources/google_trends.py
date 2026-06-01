@@ -2,26 +2,30 @@ import time
 import logging
 from typing import List, Dict
 
+import feedparser
+
 logger = logging.getLogger(__name__)
+
+_RSS_URL = "https://trends.google.com/trending/rss?geo=IN"
 
 
 def fetch(country: str = "india") -> List[Dict]:
     try:
-        from pytrends.request import TrendReq
-        pytrends = TrendReq(hl="en-US", tz=330)
-        time.sleep(2)
-        df = pytrends.trending_searches(pn=country)
+        feed = feedparser.parse(_RSS_URL)
         topics = []
-        for title in df[0].head(15).tolist():
+        for entry in feed.entries[:15]:
+            title = entry.get("title", "").strip()
+            if not title:
+                continue
             topics.append({
                 "title": title,
-                "description": f"Trending search on Google: {title}",
-                "source_urls": [],
-                "source": "google_trends",
+                "description": entry.get("summary", f"Trending on Google: {title}"),
+                "source_urls": [entry.get("link", "")] if entry.get("link") else [],
+                "source": "google_trends_rss",
                 "fetched_at": time.time(),
             })
-        logger.info(f"Google Trends: fetched {len(topics)} topics")
+        logger.info(f"Google Trends RSS: fetched {len(topics)} topics")
         return topics
     except Exception as e:
-        logger.warning(f"Google Trends fetch failed: {e}")
+        logger.warning(f"Google Trends RSS fetch failed: {e}")
         return []
