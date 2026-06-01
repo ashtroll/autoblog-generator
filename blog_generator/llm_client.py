@@ -8,19 +8,19 @@ from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_excep
 logger = logging.getLogger(__name__)
 
 _GROQ_MODEL = "llama-3.3-70b-versatile"
-_GEMINI_MODEL = "gemini-1.5-flash"
+_GEMINI_MODEL = "gemini-2.0-flash"
 _MAX_TOKENS = 4096
 
 
 def _is_rate_limit(exc: BaseException) -> bool:
     from groq import RateLimitError as GroqRLE
+    if isinstance(exc, GroqRLE):
+        return True
     try:
         from google.api_core.exceptions import ResourceExhausted
-        if isinstance(exc, ResourceExhausted):
-            return True
+        return isinstance(exc, ResourceExhausted)
     except ImportError:
-        pass
-    return isinstance(exc, GroqRLE)
+        return False
 
 
 class LLMClient:
@@ -41,7 +41,7 @@ class LLMClient:
         logger.info(f"LLMClient using provider: {self._provider}")
 
     @retry(
-        retry=retry_if_exception_type(Exception),
+        retry=retry_if_exception_type(_is_rate_limit),
         wait=wait_exponential(multiplier=1, min=15, max=120),
         stop=stop_after_attempt(6),
         before_sleep=before_sleep_log(logger, logging.WARNING),
