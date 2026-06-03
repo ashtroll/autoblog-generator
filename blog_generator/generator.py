@@ -35,7 +35,7 @@ class BlogGenerator:
         blog_md = self._llm.complete(
             system=writing.SYSTEM,
             user_message=writing.build(chosen_title, research_text, today=today),
-            max_tokens=9000,
+            max_tokens=4000,
         )
 
         # Stage 3 — Quality + retry loop
@@ -91,7 +91,7 @@ class BlogGenerator:
                 blog_md = self._llm.complete(
                     system=writing.SYSTEM,
                     user_message=rewrite_prompt,
-                    max_tokens=9000,
+                    max_tokens=4000,
                 )
 
         if best_post is None:

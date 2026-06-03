@@ -9,7 +9,7 @@ from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_excep
 logger = logging.getLogger(__name__)
 
 _MODEL = "llama-3.3-70b-versatile"
-_MAX_TOKENS = 4096
+_MAX_TOKENS = 2048
 
 
 def _is_rate_limit(exc: BaseException) -> bool:
