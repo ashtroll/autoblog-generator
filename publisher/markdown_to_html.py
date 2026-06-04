@@ -152,10 +152,42 @@ def _style_bottom_line(html: str) -> str:
     return pattern.sub(repl, html)
 
 
+def _add_lazy_loading(html: str) -> str:
+    """Add loading=lazy + decoding=async to every <img> that doesn't already have them."""
+    def repl(match):
+        tag = match.group(0)
+        if 'loading=' not in tag:
+            tag = tag.replace('<img ', '<img loading="lazy" decoding="async" ', 1)
+        return tag
+    return re.sub(r'<img\b[^>]*>', repl, html)
+
+
+def _add_external_link_attrs(html: str) -> str:
+    """Add rel=noopener noreferrer + target=_blank to external links."""
+    def repl(match):
+        tag = match.group(0)
+        href_match = re.search(r'href=["\']([^"\']*)["\']', tag)
+        if not href_match:
+            return tag
+        href = href_match.group(1)
+        # Only touch absolute URLs pointing away from the site
+        if href.startswith("http") and "tinkerstackk.blogspot.com" not in href:
+            if 'target=' not in tag:
+                tag = tag.replace('<a ', '<a target="_blank" ', 1)
+            if 'rel=' not in tag:
+                tag = tag.replace('<a ', '<a rel="noopener noreferrer" ', 1)
+            else:
+                # Append to existing rel value
+                tag = re.sub(r'rel="([^"]*)"', lambda m: f'rel="{m.group(1)} noopener noreferrer"', tag)
+        return tag
+    return re.sub(r'<a\b[^>]*>', repl, html)
+
+
 def to_html(
     markdown_text: str,
     featured_image_url: Optional[str] = None,
     featured_image_credit: Optional[str] = None,
+    title: Optional[str] = None,
 ) -> str:
     html = _md(markdown_text)
     html = _add_heading_anchors(html)
@@ -164,17 +196,31 @@ def to_html(
     html = _style_pull_quotes(html)
     html = _style_faq(html)
     html = _style_bottom_line(html)
+    html = _add_lazy_loading(html)
+    html = _add_external_link_attrs(html)
 
     if featured_image_url:
         credit_html = ""
         if featured_image_credit:
-            credit_html = f'<figcaption class="ts-hero-credit">Photo by {featured_image_credit} / Unsplash</figcaption>'
+            credit_html = (
+                f'<figcaption class="ts-hero-credit">'
+                f'Photo by {featured_image_credit} / Unsplash'
+                f'</figcaption>'
+            )
+        alt_text = _escape_attr(title) if title else "Featured article image"
         img_html = (
             '<figure class="ts-hero-figure">'
-            f'<img src="{featured_image_url}" alt="Featured image" loading="lazy"/>'
+            f'<img src="{featured_image_url}" alt="{alt_text}" '
+            f'loading="eager" decoding="async" width="1200" height="630" '
+            f'fetchpriority="high"/>'
             f'{credit_html}'
             '</figure>'
         )
         html = img_html + html
 
     return html
+
+
+def _escape_attr(text: str) -> str:
+    """Escape text for use in HTML attributes."""
+    return (text or "").replace("&", "&amp;").replace('"', "&quot;").replace("<", "&lt;").replace(">", "&gt;")

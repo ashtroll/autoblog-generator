@@ -13,11 +13,19 @@ TITLE: {chosen_title}
 TARGET LENGTH: 1200-1800 words.
 OUTPUT FORMAT: Pure Markdown (no code fences around the post itself).
 
+SEO KEYWORD RULES (non-negotiable — will be checked by an SEO reviewer):
+- Extract the PRIMARY KEYWORD from the title (the main 2-4 word phrase the article is about).
+- Use the primary keyword NATURALLY within the first 100 words of the post (hook or TL;DR).
+- Include the primary keyword or a close variant in AT LEAST 2 of your ## H2 section headings.
+- Do NOT keyword-stuff — use the keyword where it reads naturally. Aim for 1-2% density.
+- Use LSI/related terms throughout (synonyms, related concepts) to reinforce topical authority.
+
 You MUST follow this EXACT structure, in this order, using these EXACT markdown conventions:
 
 =========================================
 1. HOOK (2-3 sentences)
    - Open with a concrete event, statistic, or surprising claim. Specific names, numbers, dates.
+   - Naturally include the primary keyword in the hook or immediately after it.
    - NEVER start with: "In today's...", "It's no secret...", "In a world where...", "Have you ever..."
 
 2. TL;DR BOX — use this EXACT markdown:
