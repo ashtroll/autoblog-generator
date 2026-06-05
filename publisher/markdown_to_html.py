@@ -208,10 +208,15 @@ def to_html(
                 f'</figcaption>'
             )
         alt_text = _escape_attr(title) if title else "Featured article image"
+        # Derive a smaller mobile variant (400px wide) from the same base URL
+        mobile_url = _resize_unsplash(featured_image_url, width=400, height=210)
         img_html = (
             '<figure class="ts-hero-figure">'
-            f'<img src="{featured_image_url}" alt="{alt_text}" '
-            f'loading="eager" decoding="async" width="1200" height="630" '
+            f'<img src="{featured_image_url}" '
+            f'srcset="{mobile_url} 400w, {featured_image_url} 800w" '
+            f'sizes="(max-width:600px) 400px, 800px" '
+            f'alt="{alt_text}" '
+            f'loading="eager" decoding="async" width="800" height="420" '
             f'fetchpriority="high"/>'
             f'{credit_html}'
             '</figure>'
@@ -224,3 +229,9 @@ def to_html(
 def _escape_attr(text: str) -> str:
     """Escape text for use in HTML attributes."""
     return (text or "").replace("&", "&amp;").replace('"', "&quot;").replace("<", "&lt;").replace(">", "&gt;")
+
+
+def _resize_unsplash(url: str, width: int, height: int) -> str:
+    """Return a resized variant of an Unsplash URL by replacing w/h params."""
+    base = url.split("?")[0]
+    return f"{base}?w={width}&h={height}&fit=crop&q=72&auto=format&fm=webp"
