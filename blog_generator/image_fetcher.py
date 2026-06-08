@@ -31,6 +31,9 @@ def fetch_image(search_term: str) -> Optional[dict]:
     Returns dict with: url, photographer, attribution_link, alt_text
     Returns None if fetch fails or Unsplash API key not configured.
     """
+    # IMAGE INTEGRATION PAUSED — remove this line to re-enable
+    return None
+
     access_key = os.getenv("UNSPLASH_ACCESS_KEY")
     if not access_key:
         logger.debug("UNSPLASH_ACCESS_KEY not set — skipping image fetch")
