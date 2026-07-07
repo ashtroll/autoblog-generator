@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 import sys
 import time
 from datetime import datetime
@@ -24,11 +25,15 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 from trend_scanner.scanner import TrendScanner
+from trend_scanner.deduplicator import filter_published
 from blog_generator.generator import BlogGenerator
 from publisher.blogger import BloggerPublisher
 from notifications.telegram import send_report
 
 REPORTS_DIR = Path("reports")
+
+# Scan wide so the published-filter can drop covered stories without starving the run
+CANDIDATE_POOL = 25
 
 
 def run_daily_pipeline(topic_count: int = 1) -> dict:
@@ -39,9 +44,20 @@ def run_daily_pipeline(topic_count: int = 1) -> dict:
         "errors": [],
     }
 
+    generator = BlogGenerator()
+    publisher = BloggerPublisher.from_config()
+
+    try:
+        published_titles = publisher.recent_titles()
+        logger.info(f"Loaded {len(published_titles)} recent post titles for dedup")
+    except Exception as e:
+        published_titles = []
+        logger.warning(f"Could not fetch published titles, skipping cross-run dedup: {e}")
+
     try:
         scanner = TrendScanner()
-        topics = scanner.get_top_topics(count=topic_count)
+        candidates = scanner.get_top_topics(count=CANDIDATE_POOL)
+        topics = filter_published(candidates, published_titles)[:topic_count]
         report["topics_found"] = [t.title for t in topics]
         logger.info(f"Found {len(topics)} trending topics")
     except Exception as e:
@@ -51,9 +67,6 @@ def run_daily_pipeline(topic_count: int = 1) -> dict:
         _save_report(report)
         send_report(report)
         return report
-
-    generator = BlogGenerator()
-    publisher = BloggerPublisher.from_config()
 
     for i, topic in enumerate(topics):
         if i > 0:
@@ -97,4 +110,4 @@ def _save_report(report: dict) -> None:
 
 
 if __name__ == "__main__":
-    run_daily_pipeline()
+    run_daily_pipeline(topic_count=int(os.getenv("TOPIC_COUNT", "1")))

@@ -53,6 +53,19 @@ class BloggerPublisher(BasePublisher):
         creds.refresh(Request())
         return creds.token
 
+    def recent_titles(self, max_results: int = 150) -> list:
+        """Titles of recently published posts, for cross-run topic dedup."""
+        access_token = self._get_access_token()
+        response = requests.get(
+            _API.format(blog_id=self._blog_id),
+            params={"maxResults": max_results, "status": "live", "fields": "items(title)"},
+            headers={"Authorization": f"Bearer {access_token}"},
+            timeout=30,
+        )
+        response.raise_for_status()
+        items = response.json().get("items", []) or []
+        return [item["title"] for item in items if item.get("title")]
+
     def publish(self, blog: BlogPost) -> dict:
         access_token = self._get_access_token()
 

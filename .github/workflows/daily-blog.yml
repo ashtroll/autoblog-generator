@@ -29,24 +29,29 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Select LLM provider
+      - name: Select LLM provider and post count
         run: |
           INPUT_PROVIDER="${{ github.event.inputs.provider }}"
+          HOUR=$(date -u +%H)
           if [ "$INPUT_PROVIDER" = "groq" ] || [ "$INPUT_PROVIDER" = "groq2" ]; then
             echo "LLM_PROVIDER=$INPUT_PROVIDER" >> $GITHUB_ENV
+          elif [ "$HOUR" -lt 13 ]; then
+            echo "LLM_PROVIDER=groq" >> $GITHUB_ENV
           else
-            HOUR=$(date -u +%H)
-            if [ "$HOUR" -lt 13 ]; then
-              echo "LLM_PROVIDER=groq" >> $GITHUB_ENV
-            else
-              echo "LLM_PROVIDER=groq2" >> $GITHUB_ENV
-            fi
+            echo "LLM_PROVIDER=groq2" >> $GITHUB_ENV
+          fi
+          # 4 posts in the morning run + 3 in the evening run = 7/day
+          if [ "$HOUR" -lt 13 ]; then
+            echo "TOPIC_COUNT=4" >> $GITHUB_ENV
+          else
+            echo "TOPIC_COUNT=3" >> $GITHUB_ENV
           fi
 
       - name: Run blog pipeline
         run: python main.py
         env:
           LLM_PROVIDER: ${{ env.LLM_PROVIDER }}
+          TOPIC_COUNT: ${{ env.TOPIC_COUNT }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           GROQ_API_KEY_2: ${{ secrets.GROQ_API_KEY_2 }}
           UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}

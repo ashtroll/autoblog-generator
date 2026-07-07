@@ -14,6 +14,23 @@ def _normalize(text: str) -> str:
     return text
 
 
+def filter_published(topics: List, published_titles: List[str]) -> List:
+    """Drop Topic objects whose title fuzzy-matches an already-published post."""
+    from rapidfuzz import fuzz
+
+    normalized = [_normalize(t) for t in published_titles]
+    fresh = []
+    for topic in topics:
+        norm = _normalize(topic.title)
+        covered = any(fuzz.partial_ratio(norm, prev) >= _THRESHOLD for prev in normalized)
+        if covered:
+            logger.info(f"Skipping already-published topic: {topic.title}")
+        else:
+            fresh.append(topic)
+    logger.info(f"Published-filter: {len(topics)} -> {len(fresh)} fresh topics")
+    return fresh
+
+
 def deduplicate(topics: List[Dict]) -> List[Dict]:
     from rapidfuzz import fuzz
 
