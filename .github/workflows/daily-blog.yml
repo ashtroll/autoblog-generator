@@ -3,8 +3,7 @@ name: Daily Blog Generator
 on:
   schedule:
     - cron: '30 0 * * *'    # 6:00 AM IST  — Groq
-    - cron: '30 7 * * *'    # 1:00 PM IST  — Gemini
-    - cron: '30 13 * * *'   # 7:00 PM IST  — Gemini
+    - cron: '30 13 * * *'   # 7:00 PM IST  — Groq2
   workflow_dispatch:
     inputs:
       provider:
@@ -33,7 +32,7 @@ jobs:
       - name: Select LLM provider
         run: |
           INPUT_PROVIDER="${{ github.event.inputs.provider }}"
-          if [ "$INPUT_PROVIDER" = "groq" ] || [ "$INPUT_PROVIDER" = "gemini" ]; then
+          if [ "$INPUT_PROVIDER" = "groq" ] || [ "$INPUT_PROVIDER" = "groq2" ]; then
             echo "LLM_PROVIDER=$INPUT_PROVIDER" >> $GITHUB_ENV
           else
             HOUR=$(date -u +%H)

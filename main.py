@@ -31,7 +31,7 @@ from notifications.telegram import send_report
 REPORTS_DIR = Path("reports")
 
 
-def run_daily_pipeline(topic_count: int = 25) -> dict:
+def run_daily_pipeline(topic_count: int = 1) -> dict:
     report = {
         "date": datetime.now().isoformat(),
         "topics_found": [],
