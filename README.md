@@ -119,6 +119,9 @@ Copy `.env.example` to `.env` and fill in your keys:
 
 ```env
 GROQ_API_KEY=your_groq_api_key
+GROQ_API_KEY_2=optional_second_groq_key
+GROQ_MODEL=llama-3.1-8b-instant
+GROQ_MODEL_FALLBACKS=llama-3.3-70b-versatile
 NEWSAPI_KEY=your_newsapi_key
 GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
