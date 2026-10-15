@@ -35,7 +35,7 @@ autoblog-generator/
 │
 ├── blog_generator/
 │   ├── generator.py                 # 3-stage pipeline with retry loop
-│   ├── llm_client.py                # Groq SDK wrapper (LLaMA 3.3 70B)
+│   ├── llm_client.py                # Groq SDK wrapper (configurable GROQ_MODEL)
 │   ├── models.py                    # Pydantic models: Topic, BlogPost, QualityReport
 │   └── prompts/
 │       ├── research.py              # Stage 1: research expansion
@@ -67,7 +67,7 @@ autoblog-generator/
 
 ## Blog Generation Pipeline
 
-Each topic goes through a **3-stage AI pipeline** using Groq's LLaMA 3.3 70B:
+Each topic goes through a **3-stage AI pipeline** using a configurable Groq model (`GROQ_MODEL`):
 
 ```
 Topic → [Stage 1: Research] → [Stage 2: Write] → [Stage 3: Quality Check]
@@ -92,7 +92,7 @@ Each published post includes:
 
 | Layer | Technology |
 |---|---|
-| AI / LLM | Groq API — LLaMA 3.3 70B Versatile (free tier) |
+| AI / LLM | Groq API — configurable via `GROQ_MODEL` (default: `openai/gpt-oss-120b`) |
 | Scheduler | GitHub Actions (cron, runs on GitHub's servers) |
 | Publishing | Blogger API v3 + Google OAuth2 refresh token |
 | Trend Sources | NewsAPI, Reddit JSON API, Google News RSS, HackerNews, pytrends |
@@ -120,8 +120,8 @@ Copy `.env.example` to `.env` and fill in your keys:
 ```env
 GROQ_API_KEY=your_groq_api_key
 GROQ_API_KEY_2=optional_second_groq_key
-GROQ_MODEL=llama-3.1-8b-instant
-GROQ_MODEL_FALLBACKS=llama-3.3-70b-versatile
+GROQ_MODEL=openai/gpt-oss-120b
+GROQ_MODEL_FALLBACKS=optional_comma_separated_model_ids
 NEWSAPI_KEY=your_newsapi_key
 GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret

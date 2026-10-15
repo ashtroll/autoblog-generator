@@ -3,18 +3,20 @@ import logging
 import os
 import re
 
+import requests
 from groq import Groq, RateLimitError
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception, before_sleep_log
+from requests import RequestException
+from tenacity import retry, stop_after_attempt, wait_fixed, retry_if_exception, before_sleep_log
 
 logger = logging.getLogger(__name__)
 
-_DEFAULT_MODEL = "llama-3.1-8b-instant"
-_DEFAULT_FALLBACK_MODELS = ("llama-3.3-70b-versatile",)
+_DEFAULT_MODEL = "openai/gpt-oss-120b"
+_GROQ_MODELS_ENDPOINT = "https://api.groq.com/openai/v1/models"
 _MAX_TOKENS = 2048
 
 
 def _is_rate_limit(exc: BaseException) -> bool:
-    return isinstance(exc, RateLimitError)
+    return isinstance(exc, RateLimitError) or "429" in str(exc)
 
 
 def _is_model_unavailable(exc: BaseException) -> bool:
@@ -42,18 +44,63 @@ class LLMClient:
         if fallback_raw.strip():
             fallback_models = [m.strip() for m in fallback_raw.split(",") if m.strip()]
         else:
-            fallback_models = list(_DEFAULT_FALLBACK_MODELS)
+            fallback_models = []
         self._models = []
         for model in [primary_model, *fallback_models]:
             if model not in self._models:
                 self._models.append(model)
+        self._primary_model = primary_model
+        self._api_key = key
+        self._validate_models()
 
         logger.info(f"LLMClient using Groq ({provider})")
 
+    def _validate_models(self) -> None:
+        try:
+            response = requests.get(
+                _GROQ_MODELS_ENDPOINT,
+                headers={"Authorization": "Bearer " + self._api_key},
+                timeout=15,
+            )
+        except RequestException as exc:
+            logger.error(f"Failed to validate Groq model availability: {exc}")
+            raise RuntimeError("Groq model validation failed at startup") from exc
+
+        if response.status_code >= 400:
+            logger.error(
+                f"Failed to validate Groq models ({response.status_code}): {response.text[:400]}"
+            )
+            raise RuntimeError("Groq model validation failed at startup")
+
+        payload = response.json()
+        available_models = {
+            model.get("id", "").strip()
+            for model in payload.get("data", [])
+            if isinstance(model, dict) and model.get("id")
+        }
+
+        if self._primary_model not in available_models:
+            logger.error(
+                f"GROQ_MODEL '{self._primary_model}' is not available for this API key. "
+                "Update GROQ_MODEL to a valid model from https://api.groq.com/openai/v1/models."
+            )
+            raise RuntimeError(f"Configured GROQ_MODEL is unavailable: {self._primary_model}")
+
+        unavailable_fallbacks = [
+            model for model in self._models[1:] if model not in available_models
+        ]
+        if unavailable_fallbacks:
+            logger.warning(
+                f"Ignoring unavailable GROQ_MODEL_FALLBACKS: {', '.join(unavailable_fallbacks)}"
+            )
+            self._models = [self._primary_model] + [
+                model for model in self._models[1:] if model in available_models
+            ]
+
     @retry(
         retry=retry_if_exception(_is_rate_limit),
-        wait=wait_exponential(multiplier=1, min=15, max=120),
-        stop=stop_after_attempt(6),
+        wait=wait_fixed(3),
+        stop=stop_after_attempt(4),
         before_sleep=before_sleep_log(logger, logging.WARNING),
         reraise=True,
     )
