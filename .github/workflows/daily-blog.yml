@@ -54,6 +54,8 @@ jobs:
           TOPIC_COUNT: ${{ env.TOPIC_COUNT }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           GROQ_API_KEY_2: ${{ secrets.GROQ_API_KEY_2 }}
+          GROQ_MODEL: ${{ secrets.GROQ_MODEL }}
+          GROQ_MODEL_FALLBACKS: ${{ secrets.GROQ_MODEL_FALLBACKS }}
           UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
           NEWSAPI_KEY: ${{ secrets.NEWSAPI_KEY }}
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
